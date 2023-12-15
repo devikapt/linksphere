@@ -23,7 +23,7 @@ class UserProfile(models.Model):
     block=models.ManyToManyField("self",related_name="blocked",symmetrical=False,null=True)
 
 
-    def str(self):
+    def __str__(self):
         return self.user.username
     
 class Posts(models.Model):
@@ -33,7 +33,7 @@ class Posts(models.Model):
     created_date=models.DateTimeField(auto_now_add=True)
     liked_by=models.ManyToManyField(User,related_name="post_like")
 
-    def str(self):
+    def __str__(self):
         return self.title
 
 class Comments(models.Model):
@@ -43,7 +43,7 @@ class Comments(models.Model):
     post=models.ForeignKey(Posts,related_name="post_comments",on_delete=models.CASCADE)
 
 
-    def str(self):
+    def __str__(self):
         return self.text
     
 
