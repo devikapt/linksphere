@@ -51,7 +51,8 @@ class IndexView(CreateView,ListView):
         return reverse("index")
 
     def get_queryset(self):
-        qs=Posts.objects.all().order_by("-created_date")
+        blocked_profile=self.request.user.profile.block.all()
+        qs=Posts.objects.all().exclude(user__id__in=blocked_profile).order_by("-created_date")
         return qs
     
 
