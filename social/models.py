@@ -35,6 +35,10 @@ class Posts(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def save(self,request,*args,**kwargs):
+        if not self.expiry_date:
+            self.expiry_date=timezone.now()+timezone.timedelta(days=1)
 
 class Comments(models.Model):
     user=models.ForeignKey(User,related_name="comment",on_delete=models.CASCADE)
@@ -59,7 +63,11 @@ class Stories(models.Model):
     def str(self):
         return self.title
     
-    
+    def save(self,*args,**kwargs):
+        self.expiry_date=timezone.now()+timezone.timedelta(days=1)
+
+        super().save(*args,**kwargs)
+
 def create_profile(sender,created,instance,**kwargs):
         if created:
             UserProfile.objects.create(user=instance)

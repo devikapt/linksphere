@@ -4,11 +4,19 @@ from django.forms.models import BaseModelForm
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
 from django.views.generic import FormView,CreateView,TemplateView,View,UpdateView,DetailView,ListView
-from social.forms import RegistrationForm,LoginForm,UserProfileForm,PostForm,CommentForm
+from social.forms import RegistrationForm,LoginForm,UserProfileForm,PostForm,CommentForm,StoryForm
 from django.urls import reverse
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
+from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
-from social.models import UserProfile,Posts
+from social.models import UserProfile,Posts,Stories
+from social.decorators import login_required
+
 # Create your views here.
+
+decs=[login_required,never_cache]
 
 class SignUpView(CreateView):
     template_name="register.html"
@@ -33,8 +41,11 @@ class SignInView(FormView):
                 return redirect("index")
 
             print("error in login")
-            return redirect(request,"login.html",{"form":form})
+            messages.error(request,"failed to login invalid credentials")
+            return render(request,"login.html",{"form":form})
         
+
+@method_decorator(decs,name="dispatch")
 class IndexView(CreateView,ListView):
     template_name="index.html"
     form_class=PostForm
@@ -52,13 +63,20 @@ class IndexView(CreateView,ListView):
 
     def get_queryset(self):
         blocked_profile=self.request.user.profile.block.all()
+        blockedprofile_id=[pr.used.id for pr in blocked_profile]
+        print(blockedprofile_id)
         qs=Posts.objects.all().exclude(user__id__in=blocked_profile).order_by("-created_date")
         return qs
+
+    def get_context_data(self, **kwargs):
+        context=super().get_context_data(**kwargs)
+        current_date=timezone.now()
+        context["stories"]=Stories.objects.filter(expiry_date__gte=current_date)
+        return context
     
 
     
     
-
 class SignOutView(View):
     def get(self,request,*args,**kwargs):
         logout(request)
@@ -137,3 +155,14 @@ class ProfileBlockView(View):
         elif action =="unblock":
             request.user.profile.block.remove(profile_object)
         return redirect("index")
+    
+class StoriesCreateView(View):
+    def post(self,request,*args,**kwargs):
+        form=StoryForm(request.POST,files=request.FILES)
+        if form.is_valid():
+            form.instance.user=request.user
+            form.save()
+            return redirect("index")
+        return redirect("index")
+    
+

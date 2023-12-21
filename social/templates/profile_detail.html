@@ -50,7 +50,7 @@
                                 <div class="media">
                                     <form action="{%url 'block' data.id%}" method="post">
                                         {%csrf_token%}
-                                        {%if data in request.user.profile.block.all%}
+                                        {%if data not in request.user.profile.block.all%}
                                         <button type="submit" name="action" value="block">Block</button>
 
                                         {%else%}

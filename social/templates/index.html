@@ -47,7 +47,13 @@
             </div>
             <!-- search end -->
 
-            <a href=""><i class="fa-regular fa-square-plus me-4 fs-3 text-white opacity-75"></i></a>
+            <a href=""></a>
+
+            <!-- modal -->
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <i class="fa-regular fa-square-plus me-4 fs-3 text-white opacity-75"></i>
+            </button>
+            <!-- end modal -->
 
             <!-- profile dropdown start -->
 
@@ -67,7 +73,8 @@
                         <a href="{%url 'profile-detail' request.user.profile.id %}" class="nav-link scroll">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a href="{%url 'profile-edit' request.user.profile.id %}" class="nav-link scroll">Edit profile</a>
+                        <a href="{%url 'profile-edit' request.user.profile.id %}" class="nav-link scroll">Edit
+                            profile</a>
                     </li>
                     <div class="dropdown-divider"></div>
                     <li class="nav-item">
@@ -80,6 +87,65 @@
 
     </nav>
     <!-- nav ends -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Post Your Story</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{%url 'story-create'%}" method="post" enctype="multipart/form-data">
+
+                    {%csrf_token%}
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label for="">title</label>
+                            <input type="text" class="form-control" name="title">
+                        </div>
+                        <div class="mb-3">
+                            <input type="file" class="form-control" name="post_image" accept="image/*">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">post</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- stories -->
+    <div class="mt-5">
+        .
+    </div>
+    <div class="d-flex  container w-50 ">
+        {%for st in stories%}
+        <div class="d-flex flex-column">
+            <article
+                class="border rounded-circle bg-danger text-white  me-2 d-flex align-items-center justify-content-center"
+                style="height: 100px;width: 100px; ">
+
+
+                {%if st.post_image%}
+                <img src="{{st.post_image.url}}" alt="" style="width: 100px; height: 100px;"
+                    class="border rounded-circle">
+
+                {%endif%}
+
+            </article>
+            <div class="text-center fw-bolder">{{st.user}}</div>
+        </div>
+        {%endfor%}
+    </div>
+
+    <!-- stories -->
+
+
     {%if form.errors%}
     {{form.errors}}
     {%endif%}
@@ -108,6 +174,7 @@
                 </div>
             </div>
         </form>
+
 
         <!-- post section start -->
         {%for post in data%}
